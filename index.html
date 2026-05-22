@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -8,73 +10,110 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
 <style>
 
-body{
+*{
     margin:0;
-    font-family:Arial;
-    background:linear-gradient(135deg,#ffd6e7,#fff0f5);
-    min-height:100vh;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
 }
 
-.container{
-    width:85%;
-    margin:auto;
-    margin-top:40px;
-    background:white;
-    border-radius:30px;
-    padding:30px;
-    box-shadow:0 10px 30px rgba(255,105,180,0.2);
+body{
+    background:linear-gradient(135deg,#ffd6e7,#ffeef5);
+    min-height:100vh;
+    padding:40px;
 }
 
 h1{
     text-align:center;
     color:#ff4f9a;
+    margin-bottom:40px;
+    font-size:42px;
 }
 
-.inputs{
+.form{
     display:flex;
-    gap:10px;
-    margin-bottom:20px;
+    gap:15px;
+    margin-bottom:30px;
 }
 
 input{
     flex:1;
-    padding:14px;
+    padding:16px;
     border:none;
-    border-radius:15px;
-    background:#fff0f6;
+    border-radius:20px;
+    background:rgba(255,255,255,0.7);
+    backdrop-filter:blur(10px);
+    font-size:16px;
+    outline:none;
 }
 
 button{
+    border:none;
+    padding:16px 24px;
+    border-radius:20px;
     background:#ff4f9a;
     color:white;
-    border:none;
-    border-radius:15px;
-    padding:14px 20px;
+    font-size:16px;
     cursor:pointer;
+    transition:0.3s;
 }
 
 button:hover{
-    background:#ff2e85;
+    transform:scale(1.05);
+    background:#ff2f87;
 }
 
-table{
+.search{
     width:100%;
-    border-collapse:collapse;
-    margin-top:20px;
+    margin-bottom:30px;
 }
 
-th{
-    background:#ff4f9a;
-    color:white;
-    padding:15px;
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:25px;
 }
 
-td{
-    text-align:center;
-    padding:12px;
-    border-bottom:1px solid #ffd6e7;
+.card{
+    background:rgba(255,255,255,0.5);
+    backdrop-filter:blur(15px);
+    border-radius:30px;
+    padding:20px;
+    box-shadow:0 10px 30px rgba(255,105,180,0.15);
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+}
+
+.card img{
+    width:100%;
+    height:220px;
+    object-fit:cover;
+    border-radius:20px;
+    margin-bottom:15px;
+}
+
+.card h2{
+    color:#ff4f9a;
+    margin-bottom:10px;
+}
+
+.price{
+    font-size:20px;
+    font-weight:600;
+    margin-bottom:10px;
+}
+
+.quantity{
+    color:#666;
 }
 
 </style>
@@ -83,11 +122,9 @@ td{
 
 <body>
 
-<div class="container">
+<h1>🌸 Florist AIS</h1>
 
-<h1>🌸 Магазин Флористики</h1>
-
-<div class="inputs">
+<div class="form">
 
 <input type="text" id="name" placeholder="Название цветка">
 
@@ -101,30 +138,23 @@ td{
 
 </div>
 
-<input type="text" id="search" placeholder="Поиск..." onkeyup="searchFlowers()">
+<input
+class="search"
+type="text"
+id="search"
+placeholder="Поиск..."
+onkeyup="searchFlowers()"
+>
 
-<table>
-
-<thead>
-<tr>
-<th>Название</th>
-<th>Цена</th>
-<th>Количество</th>
-</tr>
-</thead>
-
-<tbody id="flowers-list"></tbody>
-
-</table>
-
-</div>
+<div class="cards" id="flowers-list"></div>
 
 <script>
 
-const SUPABASE_URL = "СЮДА_URL";
-const SUPABASE_KEY = "СЮДА_KEY";
+const SUPABASE_URL = "https://jemdhlusgqkbdlyyrhxv.supabase.co";
 
-const client = supabase.createClient(https://jemdhlusgqkbdlyyrhxv.supabase.co, sb_publishable_pObwPIDKG_ig-mspBCmkfA_9utZgsDK);
+const SUPABASE_KEY = "sb_publishable_pObwPIDKG_ig-mspBCmkfA_9utZgsDK";
+
+const client = supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 async function addFlower(){
 
@@ -160,11 +190,22 @@ async function loadFlowers(){
     data.forEach(flower => {
 
         list.innerHTML += `
-        <tr>
-            <td>${flower.name}</td>
-            <td>${flower.price}</td>
-            <td>${flower.quantity}</td>
-        </tr>
+        
+        <div class="card">
+
+        <img src="https://images.unsplash.com/photo-1526047932273-341f2a7631f9?q=80&w=1200&auto=format&fit=crop">
+
+        <h2>${flower.name}</h2>
+
+        <div class="price">
+        ${flower.price} ₸
+        </div>
+
+        <div class="quantity">
+        Количество: ${flower.quantity}
+        </div>
+
+        </div>
         `;
     });
 }
@@ -173,14 +214,14 @@ function searchFlowers(){
 
     let input = document.getElementById("search").value.toLowerCase();
 
-    let rows = document.querySelectorAll("tbody tr");
+    let cards = document.querySelectorAll(".card");
 
-    rows.forEach(row => {
+    cards.forEach(card => {
 
-        let text = row.innerText.toLowerCase();
+        let text = card.innerText.toLowerCase();
 
-        row.style.display = text.includes(input)
-        ? ""
+        card.style.display = text.includes(input)
+        ? "block"
         : "none";
     });
 }
