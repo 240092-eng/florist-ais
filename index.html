@@ -6,11 +6,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Florist AIS</title>
+<title>Florist Shop</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
@@ -24,7 +22,7 @@
 }
 
 body{
-    background:linear-gradient(135deg,#ffd6e7,#ffeef5);
+    background:linear-gradient(135deg,#ffd6e7,#fff0f6);
     min-height:100vh;
     padding:40px;
 }
@@ -32,88 +30,142 @@ body{
 h1{
     text-align:center;
     color:#ff4f9a;
+    font-size:50px;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#777;
     margin-bottom:40px;
-    font-size:42px;
 }
 
-.form{
+.top{
     display:flex;
-    gap:15px;
+    justify-content:space-between;
+    align-items:center;
     margin-bottom:30px;
+    gap:20px;
 }
 
-input{
+.search{
     flex:1;
     padding:16px;
     border:none;
     border-radius:20px;
-    background:rgba(255,255,255,0.7);
-    backdrop-filter:blur(10px);
+    background:white;
     font-size:16px;
-    outline:none;
+    box-shadow:0 5px 15px rgba(0,0,0,0.05);
 }
 
-button{
+.add-btn{
     border:none;
-    padding:16px 24px;
-    border-radius:20px;
     background:#ff4f9a;
     color:white;
+    padding:16px 24px;
+    border-radius:20px;
     font-size:16px;
     cursor:pointer;
     transition:0.3s;
 }
 
-button:hover{
+.add-btn:hover{
     transform:scale(1.05);
-    background:#ff2f87;
-}
-
-.search{
-    width:100%;
-    margin-bottom:30px;
 }
 
 .cards{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
     gap:25px;
 }
 
 .card{
-    background:rgba(255,255,255,0.5);
-    backdrop-filter:blur(15px);
+    background:white;
     border-radius:30px;
-    padding:20px;
+    overflow:hidden;
     box-shadow:0 10px 30px rgba(255,105,180,0.15);
     transition:0.3s;
 }
 
 .card:hover{
-    transform:translateY(-5px);
+    transform:translateY(-8px);
 }
 
 .card img{
     width:100%;
-    height:220px;
+    height:240px;
     object-fit:cover;
-    border-radius:20px;
-    margin-bottom:15px;
 }
 
-.card h2{
+.info{
+    padding:20px;
+}
+
+.info h2{
     color:#ff4f9a;
     margin-bottom:10px;
 }
 
 .price{
-    font-size:20px;
+    font-size:24px;
     font-weight:600;
     margin-bottom:10px;
 }
 
 .quantity{
-    color:#666;
+    color:#777;
+    margin-bottom:20px;
+}
+
+.delete-btn{
+    width:100%;
+    border:none;
+    padding:14px;
+    border-radius:15px;
+    background:#ffe3ef;
+    color:#ff4f9a;
+    cursor:pointer;
+    font-size:15px;
+}
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.4);
+    display:none;
+    justify-content:center;
+    align-items:center;
+}
+
+.modal-content{
+    width:400px;
+    background:white;
+    padding:30px;
+    border-radius:30px;
+}
+
+.modal-content h2{
+    color:#ff4f9a;
+    margin-bottom:20px;
+}
+
+.modal-content input{
+    width:100%;
+    margin-bottom:15px;
+    padding:15px;
+    border:none;
+    border-radius:15px;
+    background:#fff0f6;
+}
+
+.modal-content button{
+    width:100%;
+    border:none;
+    padding:15px;
+    border-radius:15px;
+    background:#ff4f9a;
+    color:white;
+    cursor:pointer;
 }
 
 </style>
@@ -122,31 +174,52 @@ button:hover{
 
 <body>
 
-<h1>🌸 Florist AIS</h1>
+<h1>🌸 Florist Shop</h1>
 
-<div class="form">
+<div class="subtitle">
+Система управления магазином флористики
+</div>
 
-<input type="text" id="name" placeholder="Название цветка">
+<div class="top">
+
+<input
+class="search"
+type="text"
+id="search"
+placeholder="🔍 Поиск букетов..."
+onkeyup="searchFlowers()"
+>
+
+<button
+class="add-btn"
+onclick="openModal()"
+>
++ Добавить букет
+</button>
+
+</div>
+
+<div class="cards" id="flowers-list"></div>
+
+<div class="modal" id="modal">
+
+<div class="modal-content">
+
+<h2>Добавить букет 🌷</h2>
+
+<input type="text" id="name" placeholder="Название">
 
 <input type="number" id="price" placeholder="Цена">
 
 <input type="number" id="quantity" placeholder="Количество">
 
 <button onclick="addFlower()">
-Добавить
+Сохранить
 </button>
 
 </div>
 
-<input
-class="search"
-type="text"
-id="search"
-placeholder="Поиск..."
-onkeyup="searchFlowers()"
->
-
-<div class="cards" id="flowers-list"></div>
+</div>
 
 <script>
 
@@ -155,6 +228,19 @@ const SUPABASE_URL = "https://jemdhlusgqkbdlyyrhxv.supabase.co";
 const SUPABASE_KEY = "sb_publishable_pObwPIDKG_ig-mspBCmkfA_9utZgsDK";
 
 const client = supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+function openModal(){
+    document.getElementById("modal").style.display="flex";
+}
+
+window.onclick = function(event){
+
+    let modal = document.getElementById("modal");
+
+    if(event.target == modal){
+        modal.style.display = "none";
+    }
+}
 
 async function addFlower(){
 
@@ -174,6 +260,18 @@ async function addFlower(){
         }
     ]);
 
+    document.getElementById("modal").style.display="none";
+
+    loadFlowers();
+}
+
+async function deleteFlower(id){
+
+    await client
+    .from("flowers")
+    .delete()
+    .eq("id",id);
+
     loadFlowers();
 }
 
@@ -190,10 +288,12 @@ async function loadFlowers(){
     data.forEach(flower => {
 
         list.innerHTML += `
-        
+
         <div class="card">
 
-        <img src="https://images.unsplash.com/photo-1526047932273-341f2a7631f9?q=80&w=1200&auto=format&fit=crop">
+        <img src="https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?q=80&w=1200&auto=format&fit=crop">
+
+        <div class="info">
 
         <h2>${flower.name}</h2>
 
@@ -202,7 +302,16 @@ async function loadFlowers(){
         </div>
 
         <div class="quantity">
-        Количество: ${flower.quantity}
+        В наличии: ${flower.quantity}
+        </div>
+
+        <button
+        class="delete-btn"
+        onclick="deleteFlower(${flower.id})"
+        >
+        🗑 Удалить
+        </button>
+
         </div>
 
         </div>
@@ -231,4 +340,5 @@ loadFlowers();
 </script>
 
 </body>
+
 </html>
